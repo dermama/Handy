@@ -46,7 +46,7 @@ class TermuxService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Edge Terminal")
             .setContentText("Terminal environment is running")
-            .setSmallIcon(android.R.drawable.ic_menu_console)
+            .setSmallIcon(android.R.drawable.ic_menu_view)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .build()
