@@ -50,6 +50,10 @@ android {
         buildConfig = true
     }
 
+    ksp {
+        arg("dagger.hilt.android.internal.daggerandroid.codegenOption", "disable")
+    }
+
     packaging {
         resources {
             excludes += setOf(
@@ -110,6 +114,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.hilt.work)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
