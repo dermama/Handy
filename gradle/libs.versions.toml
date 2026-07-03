@@ -16,12 +16,11 @@ moshi = "1.15.2"
 coil = "2.7.0"
 accompanist = "0.36.0"
 mediapipe = "0.10.28"
-litert = "1.0.1"
-huggingface-hub = "0.2.0"
+litertlm = "0.10.0"
 termux-shared = "0.118.0"
 grpc = "1.68.2"
 protobuf = "4.29.3"
-tensorflow-lite = "2.18.0"
+tensorflow-lite = "2.17.0"
 datastore = "1.1.4"
 room = "2.6.1"
 work-manager = "2.10.0"
@@ -81,11 +80,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediapipe" }
 mediapipe-tasks-text = { group = "com.google.mediapipe", name = "tasks-text", version.ref = "mediapipe" }
 mediapipe-tasks-audio = { group = "com.google.mediapipe", name = "tasks-audio", version.ref = "mediapipe" }
-litert-lm = { group = "com.google.ai.edge", name = "litert-lm", version.ref = "litert" }
-litert-runtime = { group = "com.google.ai.edge", name = "litert-runtime", version.ref = "litert" }
+litertlm-android = { group = "com.google.ai.edge.litertlm", name = "litertlm-android", version.ref = "litertlm" }
 tensorflow-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tensorflow-lite" }
 tensorflow-lite-support = { group = "org.tensorflow", name = "tensorflow-lite-support", version = "0.4.4" }
-huggingface-hub = { group = "io.huggingface", name = "huggingface-hub", version.ref = "huggingface-hub" }
 
 # Termux
 termux-terminal-emulator = { group = "com.termux", name = "terminal-emulator", version.ref = "termux-shared" }

@@ -136,11 +136,9 @@ dependencies {
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.mediapipe.tasks.text)
     implementation(libs.mediapipe.tasks.audio)
-    implementation(libs.litert.lm)
-    implementation(libs.litert.runtime)
+    implementation(libs.litertlm.android)
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)
-    implementation(libs.huggingface.hub)
 
     // JSON
     implementation(libs.json)
