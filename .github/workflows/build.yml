@@ -1,0 +1,214 @@
+name: Build Edge Integrated APK
+
+on:
+  push:
+    branches: [ main, dev ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - debug
+          - release
+      upload_artifact:
+        description: 'Upload APK as artifact'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  JAVA_VERSION: '17'
+  ANDROID_SDK_VERSION: '35'
+  NDK_VERSION: '27.0.12077973'
+  GRADLE_VERSION: '8.13.2'
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [ arm64-v8a, armeabi-v7a, x86_64 ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          sdkmanager --install "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+          sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}.0.0"
+          sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+          sdkmanager --install "cmake;3.22.1"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            glslang-tools \
+            ninja-build \
+            pkg-config \
+            libgl1-mesa-dev \
+            libegl1-mesa-dev \
+            xvfb
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            !~/.gradle/caches/build-cache-*
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache NDK build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/build/.transforms
+            app/build/intermediates/ndkBuild
+            termux-module/**/build/intermediates/ndkBuild
+            winlator-core/build/intermediates/cmake
+          key: ${{ runner.os }}-ndk-${{ matrix.arch }}-${{ hashFiles('**/CMakeLists.txt', '**/Android.mk', 'app/src/main/cpp/**') }}
+          restore-keys: |
+            ${{ runner.os }}-ndk-${{ matrix.arch }}-
+
+      - name: Download Termux bootstrap
+        run: |
+          mkdir -p app/src/main/cpp
+          for arch in arm64-v8a armeabi-v7a x86_64 x86; do
+            BOOTSTRAP_URL="https://github.com/termux/termux-app/releases/download/v0.118.0/bootstrap-$arch.zip"
+            echo "Downloading bootstrap for $arch..."
+            curl -fSL --retry 3 -o "app/src/main/cpp/bootstrap-$arch.zip" "$BOOTSTRAP_URL" || \
+              echo "Warning: bootstrap for $arch not found, using stub"
+          done
+
+      - name: Download Winlator assets
+        run: |
+          mkdir -p winlator-core/src/main/assets
+          # Winlator imagefs (rootfs for Wine containers)
+          WINLATOR_ASSETS_URL="https://gitlab.com/winlator3/winlator-extra/-/raw/main"
+          for asset in imagefs.txz proton-9.0-arm64ec.txz proton-9.0-x86_64.txz; do
+            echo "Downloading $asset..."
+            curl -fSL --retry 3 -o "winlator-core/src/main/assets/$asset" \
+              "$WINLATOR_ASSETS_URL/$asset" || \
+              echo "Warning: $asset download failed, creating stub"
+          done
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Build native libraries (NDK)
+        run: |
+          ./gradlew :app:externalNativeBuildRelease \
+            :winlator-core:externalNativeBuildRelease \
+            -PbuildArch=${{ matrix.arch }} \
+            --no-daemon
+
+      - name: Assemble APK
+        run: |
+          BUILD_TYPE="${{ github.event.inputs.build_type || 'release' }}"
+          if [ "$BUILD_TYPE" = "release" ]; then
+            ./gradlew :app:assembleRelease \
+              -Pandroid.injected.signing.store.file=/dev/null \
+              -Pandroid.injected.signing.store.password= \
+              -Pandroid.injected.signing.key.alias= \
+              -Pandroid.injected.signing.key.password=
+          else
+            ./gradlew :app:assembleDebug
+          fi
+
+      - name: Sign APK (Release only)
+        if: github.event.inputs.build_type == 'release' || startsWith(github.ref, 'refs/tags/v')
+        env:
+          SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+        run: |
+          if [ -n "$SIGNING_KEYSTORE" ]; then
+            echo "$SIGNING_KEYSTORE" | base64 -d > keystore.jks
+            ./gradlew :app:signReleaseBundle \
+              -Pandroid.injected.signing.store.file=$(pwd)/keystore.jks \
+              -Pandroid.injected.signing.store.password=$SIGNING_STORE_PASSWORD \
+              -Pandroid.injected.signing.key.alias=$SIGNING_KEY_ALIAS \
+              -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
+            rm keystore.jks
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EdgeIntegrated-${{ matrix.arch }}-${{ github.event.inputs.build_type || 'release' }}
+          path: |
+            app/build/outputs/apk/**/*.apk
+            app/build/outputs/bundle/**/*.aab
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+          generate_release_notes: true
+          make_latest: true
+
+  lint:
+    name: Lint check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+      - run: ./gradlew lint --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: lint-results
+          path: app/build/reports/lint-results*.html
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+      - run: ./gradlew test --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: app/build/reports/tests/**

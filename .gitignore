@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+.DS_Store
+
+# Android
+local.properties
+*.keystore
+*.jks
+*.apk
+*.aab
+
+# Native
+.cxx/
+ndk-build/
+
+# Assets (downloaded at build time)
+app/src/main/cpp/bootstrap-*.zip
+winlator-core/src/main/assets/*
+
+# Node
+node_modules/
+
+# OpenCode
+opencode-runtime/config/opencode.json
+opencode-runtime/sessions/
+
+# Misc
+*.log
+*.tmp

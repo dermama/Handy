@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Handy</string>
+    <string name="app_description">AI-powered integrated development environment for Android</string>
+
+    <!-- Navigation -->
+    <string name="nav_ai_chat">AI Chat</string>
+    <string name="nav_terminal">Terminal</string>
+    <string name="nav_winlator">Winlator</string>
+    <string name="nav_opencode">OpenCode AI</string>
+    <string name="nav_models">Models</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- AI Chat -->
+    <string name="ai_chat_title">AI Chat</string>
+    <string name="ai_chat_hint">Type a message…</string>
+    <string name="ai_chat_send">Send</string>
+    <string name="ai_chat_clear">Clear chat</string>
+    <string name="ai_chat_local_mode">Local Mode</string>
+    <string name="ai_chat_cloud_mode">Cloud Mode</string>
+    <string name="ai_chat_model_select">Select Model</string>
+    <string name="ai_chat_no_model">No model loaded</string>
+    <string name="ai_chat_download_model">Download Model</string>
+
+    <!-- Terminal -->
+    <string name="terminal_title">Terminal</string>
+    <string name="terminal_new_session">New Session</string>
+    <string name="terminal_close_session">Close Session</string>
+    <string name="terminal_command_hint">Enter command…</string>
+
+    <!-- Winlator -->
+    <string name="winlator_title">Winlator</string>
+    <string name="winlator_new_container">New Container</string>
+    <string name="winlator_launch">Launch</string>
+    <string name="winlator_stop">Stop</string>
+    <string name="winlator_no_containers">No containers yet</string>
+    <string name="winlator_create_container">Create Container</string>
+    <string name="winlator_settings">Container Settings</string>
+
+    <!-- OpenCode -->
+    <string name="opencode_title">OpenCode AI</string>
+    <string name="opencode_start">Start OpenCode</string>
+    <string name="opencode_stop">Stop</string>
+    <string name="opencode_connected">Connected</string>
+    <string name="opencode_disconnected">Disconnected</string>
+    <string name="opencode_connecting">Connecting…</string>
+    <string name="opencode_cloud">Cloud Mode</string>
+    <string name="opencode_local">Local Mode</string>
+    <string name="opencode_auto">Auto Mode</string>
+
+    <!-- Models -->
+    <string name="models_title">AI Models</string>
+    <string name="models_download">Download</string>
+    <string name="models_delete">Delete</string>
+    <string name="models_downloading">Downloading…</string>
+    <string name="models_from_huggingface">From HuggingFace</string>
+    <string name="models_local">Local Models</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_termux_rootfs">Termux RootFS</string>
+    <string name="settings_winlator_wine">Wine Version</string>
+    <string name="settings_opencode_server">OpenCode Server Port</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_storage">Storage Usage</string>
+    <string name="settings_about">About</string>
+
+    <!-- General -->
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+</resources>

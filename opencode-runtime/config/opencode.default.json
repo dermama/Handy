@@ -1,0 +1,34 @@
+{
+  "server": {
+    "port": 8080,
+    "host": "127.0.0.1"
+  },
+  "mode": "cloud",
+  "ai": {
+    "cloud_providers": [
+      "openai",
+      "anthropic",
+      "google-gemini",
+      "openrouter",
+      "groq"
+    ],
+    "default_provider": "anthropic",
+    "default_model": "claude-sonnet-4-20250514",
+    "local_fallback": {
+      "enabled": true,
+      "model": "gemma-2b",
+      "runtime": "litert-lm"
+    }
+  },
+  "features": {
+    "code_execution": true,
+    "file_editing": true,
+    "terminal_access": true,
+    "lsp_support": true
+  },
+  "storage": {
+    "sessions_dir": "./sessions",
+    "config_dir": "./config",
+    "max_sessions": 50
+  }
+}
