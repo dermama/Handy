@@ -137,8 +137,9 @@ dependencies {
     implementation(libs.mediapipe.tasks.text)
     implementation(libs.mediapipe.tasks.audio)
     implementation(libs.litertlm.android)
-    implementation(libs.tensorflow.lite)
-    implementation(libs.tensorflow.lite.support)
+    implementation(libs.tensorflow.lite) {
+        because("Used for on-device ML inference via LiteRT runtime")
+    }
 
     // JSON
     implementation(libs.json)
