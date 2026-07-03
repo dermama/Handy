@@ -129,19 +129,8 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Google AI Edge / MediaPipe / LiteRT
-    implementation(libs.mediapipe.tasks.vision)
-    implementation(libs.mediapipe.tasks.text)
-    implementation(libs.mediapipe.tasks.audio)
-    implementation(libs.litertlm.android)
-    implementation(libs.tensorflow.lite) {
-        because("Used for on-device ML inference via LiteRT runtime")
-    }
+    // Stub: Real ML dependencies will be added when on-device inference is implemented
 
     // JSON
     implementation(libs.json)
-
-    // gRPC
-    implementation(libs.grpc.okhttp)
-    implementation(libs.grpc.protobuf.lite)
-    implementation(libs.grpc.stub)
 }
